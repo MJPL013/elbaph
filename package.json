@@ -37,5 +37,9 @@
     "pngjs": "^7.0.0",
     "typescript": "latest",
     "vite": "latest"
+  },
+  "engines": {
+    "node": ">=20",
+    "npm": ">=10"
   }
 }
