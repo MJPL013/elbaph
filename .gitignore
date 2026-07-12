@@ -1,0 +1,34 @@
+﻿# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+*.tsbuildinfo
+
+# Local environment
+.env
+.env.*
+!.env.example
+
+# Local logs and temporary captures
+*.log
+*.err.log
+render-check.png
+vite*.log
+vite*.err.log
+
+# Local Codex/agent artifacts
+.agents/
+.codex/
+agent_instructions.txt
+
+# Test caches and reports
+coverage/
+playwright-report/
+test-results/

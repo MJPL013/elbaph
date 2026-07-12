@@ -1,0 +1,41 @@
+{
+  "name": "elbaph",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "verify:render": "node scripts/verify-render.mjs",
+    "verify:movement": "node scripts/verify-movement.mjs",
+    "verify:collision": "node scripts/verify-collision.mjs",
+    "verify:state": "node scripts/verify-state.mjs",
+    "verify:camera": "node scripts/verify-camera.mjs",
+    "verify:content": "node scripts/verify-content.mjs",
+    "verify:visual": "node scripts/verify-visual.mjs",
+    "verify:layout": "node scripts/verify-layout.mjs",
+    "verify:relative-movement": "node scripts/verify-relative-movement.mjs",
+    "report:size": "node scripts/report-build-size.mjs"
+  },
+  "dependencies": {
+    "@react-three/drei": "latest",
+    "@react-three/fiber": "latest",
+    "@react-three/postprocessing": "^3.0.4",
+    "@tailwindcss/vite": "^4.3.1",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "tailwindcss": "^4.3.1",
+    "three": "latest",
+    "zustand": "latest"
+  },
+  "devDependencies": {
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "@vitejs/plugin-react": "latest",
+    "playwright-core": "^1.60.0",
+    "pngjs": "^7.0.0",
+    "typescript": "latest",
+    "vite": "latest"
+  }
+}

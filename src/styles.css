@@ -1,0 +1,78 @@
+@import "tailwindcss";
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  overflow: hidden;
+  background: #f1eee8;
+}
+
+canvas {
+  display: block;
+  touch-action: none;
+}
+
+.markdown-body p,
+.markdown-body li {
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.markdown-body {
+  margin-bottom: 14px;
+}
+
+.markdown-body li {
+  margin-left: 18px;
+}
+
+.interaction-panel {
+  animation: panel-slide 220ms ease-out;
+}
+
+.virtual-joystick {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+}
+
+.virtual-joystick-base,
+.virtual-joystick-knob {
+  position: absolute;
+  border-radius: 999px;
+  transform: translate(-50%, -50%);
+}
+
+.virtual-joystick-base {
+  width: 118px;
+  height: 118px;
+  border: 2px solid rgba(36, 16, 6, 0.48);
+  background: rgba(255, 248, 239, 0.28);
+  box-shadow: 0 10px 30px rgba(36, 16, 6, 0.18);
+}
+
+.virtual-joystick-knob {
+  width: 46px;
+  height: 46px;
+  border: 2px solid rgba(36, 16, 6, 0.72);
+  background: rgba(255, 190, 152, 0.82);
+}
+
+@keyframes panel-slide {
+  from {
+    opacity: 0;
+    transform: translateX(22px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
