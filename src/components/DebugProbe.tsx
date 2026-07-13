@@ -1,10 +1,12 @@
-﻿import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import type { Group } from "three";
 import { Vector2, Vector3 } from "three";
 import { LANDMARKS } from "../game/landmarkData";
 import type { PortfolioQuarter } from "../game/landmarkData";
 import { useGameStore } from "../store/useGameStore";
+import { collectSceneDiagnostics } from "../game/sceneDiagnostics";
+import { useElbaphMaterialLibrary } from "../art/materials/ElbaphMaterialProvider";
 
 const LANDMARK_QUARTERS = new Map(LANDMARKS.map((landmark) => [landmark.id, landmark.quarter]));
 
@@ -34,11 +36,23 @@ export function DebugProbe({
   const characterPosition = useRef(new Vector3());
   const projectedPosition = useRef(new Vector3());
   const lastQuarter = useRef<PortfolioQuarter | null>(null);
-  const { camera, size } = useThree();
+  const sceneDiagnosticsRef = useRef<ReturnType<typeof collectSceneDiagnostics> | null>(null);
+  const rendererStatsRef = useRef({ drawCalls: 0, triangles: 0, textures: 0 });
+  const { camera, size, gl } = useThree();
+  const materialLibrary = useElbaphMaterialLibrary();
   const isInteracting = useGameStore((state) => state.isInteracting);
   const activeLandmarkId = useGameStore((state) => state.activeLandmarkId);
   const activeTarget = useGameStore((state) => state.activeTarget);
   const setCurrentQuarter = useGameStore((state) => state.setCurrentQuarter);
+
+  useEffect(() => {
+    const previousAutoReset = gl.info.autoReset;
+    gl.info.autoReset = false;
+    return () => {
+      gl.info.autoReset = previousAutoReset;
+      gl.info.reset();
+    };
+  }, [gl]);
 
   useFrame(() => {
     const character = characterRef.current;
@@ -95,6 +109,16 @@ export function DebugProbe({
       setCurrentQuarter(quarter);
     }
 
+    const sceneDiagnostics = sceneDiagnosticsRef.current ?? collectSceneDiagnostics(planet);
+    sceneDiagnosticsRef.current = sceneDiagnostics;
+
+    rendererStatsRef.current = {
+      drawCalls: gl.info.render.calls,
+      triangles: gl.info.render.triangles,
+      textures: gl.info.memory.textures,
+    };
+    gl.info.reset();
+
     window.__SELF_WORLD_DEBUG__ = {
       characterWorldPosition: characterPosition.current.toArray(),
       characterFacingYaw: character.rotation.y,
@@ -126,6 +150,11 @@ export function DebugProbe({
       decalSlotCount,
       quarterBandCount,
       buildingArchetypes: Array.from(buildingArchetypes),
+      rendererDrawCalls: rendererStatsRef.current.drawCalls,
+      rendererTriangles: rendererStatsRef.current.triangles,
+      rendererTextures: rendererStatsRef.current.textures,
+      materialLibraryCount: materialLibrary.size,
+      ...sceneDiagnostics,
     };
   });
 

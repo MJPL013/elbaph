@@ -1,10 +1,10 @@
-﻿import { useRef } from "react";
+import { useRef } from "react";
 import { Text } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
 import type { Group } from "three";
 import { Quaternion } from "three";
 import { PANTONE_INSPIRED } from "../../game/palette";
-import { InkOutline } from "../InkOutline";
+import { SharedToonMaterial } from "./buildings/BuildingKit";
 
 const CAMERA_QUATERNION = new Quaternion();
 const PARENT_QUATERNION = new Quaternion();
@@ -33,8 +33,7 @@ export function WorldBillboardLabel({
     <group ref={ref} position={position} userData={{ billboardLabel: true, sceneryMesh: true }}>
       <mesh castShadow>
         <boxGeometry args={[width, 0.17, 0.035]} />
-        <meshStandardMaterial color={PANTONE_INSPIRED.cloudWarm} roughness={0.68} />
-        <InkOutline thickness={0.012} />
+        <SharedToonMaterial material="concrete.warm" />
       </mesh>
       <Text
         position={[0, 0.006, 0.024]}

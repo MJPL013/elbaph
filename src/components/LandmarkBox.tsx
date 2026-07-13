@@ -1,4 +1,4 @@
-﻿import { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import type { ThreeEvent } from "@react-three/fiber";
 import type { Group, Mesh } from "three";
 import { Vector3 } from "three";
@@ -10,6 +10,7 @@ import { useGameStore } from "../store/useGameStore";
 import { DistrictPad } from "./scenery/DistrictPad";
 import { HeroLandmark } from "./scenery/HeroLandmark";
 import { SceneryProps } from "./scenery/SceneryProps";
+import type { QualityTier } from "../hooks/useQualityTier";
 
 const DEFAULT_BUILDING_HEIGHT = 0.78;
 const DEFAULT_FOOTPRINT: [number, number] = [0.58, 0.58];
@@ -18,12 +19,14 @@ const CLICK_TARGET_HEIGHT = 1.5;
 type LandmarkBoxProps = {
   debugVisible: boolean;
   landmark: LandmarkDefinition;
+  qualityTier: QualityTier;
   registerCollider: (id: string, collider: Mesh | null) => void;
 };
 
 export function LandmarkBox({
   debugVisible,
   landmark,
+  qualityTier,
   registerCollider,
 }: LandmarkBoxProps) {
   const colliderRef = useRef<Mesh>(null);
@@ -55,7 +58,7 @@ export function LandmarkBox({
     <group position={position} quaternion={quaternion} onClick={handleClick}>
       <group ref={targetRef}>
         <DistrictPad radius={landmark.padRadius} y={-height / 2 - 0.03} />
-        <HeroLandmark landmark={landmark} label={label} />
+        <HeroLandmark landmark={landmark} label={label} qualityTier={qualityTier} />
         <SceneryProps cluster={landmark.propCluster} />
       </group>
       <mesh

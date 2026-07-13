@@ -37,7 +37,7 @@ export function FillerBuilding({
     <group position={position} quaternion={quaternion}>
       <DistrictPad radius={0.36} y={-building.height / 2 - 0.03} />
       <SkyBuilding
-        color={building.color}
+        material={building.materialTheme}
         height={building.height}
         variant={building.variant}
       />

@@ -1,4 +1,4 @@
-﻿import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { chromium } from "playwright-core";
 import { PNG } from "pngjs";
@@ -42,7 +42,7 @@ function samplePixels(buffer) {
         result.nonBackgroundPixels += 1;
       }
       if (r > 215 && g > 205 && b > 185) result.brightWhitePixels += 1;
-      if (r > 130 && g < 95 && b < 95) result.redPixels += 1;
+      if (r > 220 && g < 95 && b < 95) result.redPixels += 1;
     }
   }
 

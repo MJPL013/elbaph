@@ -1,4 +1,4 @@
-﻿import type { PortfolioQuarter } from "../game/landmarkData";
+import type { PortfolioQuarter } from "../game/landmarkData";
 
 export type SelfWorldDebugState = {
   characterWorldPosition: [number, number, number];
@@ -31,6 +31,18 @@ export type SelfWorldDebugState = {
   decalSlotCount: number;
   quarterBandCount: number;
   buildingArchetypes: string[];
+  rendererDrawCalls: number;
+  rendererTriangles: number;
+  rendererTextures: number;
+  materialLibraryCount: number;
+  sceneMaterialCount: number;
+  usedElbaphMaterialCount: number;
+  duplicateElbaphMaterialCount: number;
+  kazamHeroCount: number;
+  kazamMeshCount: number;
+  kazamTriangles: number;
+  kazamDrawCalls: number;
+  kazamMaterialSlots: string[];
 };
 
 declare global {

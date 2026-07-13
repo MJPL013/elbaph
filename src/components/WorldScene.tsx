@@ -10,6 +10,7 @@ import { TreadmillPlanet } from "./TreadmillPlanet";
 import { PANTONE_INSPIRED } from "../game/palette";
 import type { QualityTier } from "../hooks/useQualityTier";
 import { useDebugStore } from "../store/useDebugStore";
+import { ElbaphMaterialProvider } from "../art/materials/ElbaphMaterialProvider";
 
 type WorldSceneProps = {
   qualityTier: QualityTier;
@@ -47,7 +48,7 @@ export function WorldScene({ qualityTier }: WorldSceneProps) {
   }, []);
 
   return (
-    <>
+    <ElbaphMaterialProvider>
       <color attach="background" args={[PANTONE_INSPIRED.cloud]} />
       <ambientLight intensity={0.72} />
       <hemisphereLight
@@ -104,6 +105,6 @@ export function WorldScene({ qualityTier }: WorldSceneProps) {
         collisionTargetRef={collisionTargetRef}
       />
       <StylizedEffects selection={outlineTargets} qualityTier={qualityTier} />
-    </>
+    </ElbaphMaterialProvider>
   );
 }

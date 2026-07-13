@@ -1,8 +1,9 @@
-﻿import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { chromium } from "playwright-core";
 import { PNG } from "pngjs";
 import { createServer } from "vite";
+import { captureSecondaryViews } from "./visual-viewport-checks.mjs";
 
 const ARTIFACT_DIR = resolve(".agents", "artifacts");
 const SCREENSHOT_PATH = resolve(ARTIFACT_DIR, "visual-check.png");
@@ -105,6 +106,12 @@ async function main() {
     if (debug.quarterBandCount < 4) throw new Error(`Missing quarter boundary bands: ${debug.quarterBandCount}`);
     if (debug.debugVisible !== false) throw new Error("Debug wireframes should be hidden by default.");
     if (!debug.currentQuarter) throw new Error("Current quarter was not detected for HUD state.");
+    if (debug.materialLibraryCount !== 16) throw new Error("Material registry count is not 16.");
+    if (debug.duplicateElbaphMaterialCount !== 0) throw new Error("Duplicate shared materials detected.");
+    if (debug.kazamHeroCount !== 1) throw new Error("Missing Kazam hero blockout.");
+    if (debug.kazamDrawCalls > 16) throw new Error("Kazam draw-call budget exceeded: " + debug.kazamDrawCalls);
+    if (debug.kazamTriangles > 7000) throw new Error("Kazam triangle budget exceeded: " + debug.kazamTriangles);
+    if (debug.rendererDrawCalls <= 0 || debug.rendererTriangles <= 0) throw new Error("Renderer statistics are unavailable.");
 
     await page.waitForFunction(() => window.__SELF_WORLD_DEBUG__?.avatarLoaded === true, null, { timeout: 10_000 });
 
@@ -136,9 +143,28 @@ async function main() {
     await page.keyboard.press("h");
     await page.waitForFunction(() => window.__SELF_WORLD_DEBUG__?.debugVisible === false, null, { timeout: 3_000 });
 
+    const secondaryViews = await captureSecondaryViews(browser, url, ARTIFACT_DIR);
+
     if (errors.length > 0) throw new Error(`Browser console errors:\n${errors.join("\n")}`);
 
-    console.log(JSON.stringify({ ok: true, url, outlinePixels, panelState, screenshot: SCREENSHOT_PATH }, null, 2));
+    console.log(JSON.stringify({
+      ok: true,
+      url,
+      outlinePixels,
+      panelState,
+      kazam: {
+        meshes: debug.kazamMeshCount,
+        triangles: debug.kazamTriangles,
+        drawCalls: debug.kazamDrawCalls,
+      },
+      renderer: {
+        triangles: debug.rendererTriangles,
+        drawCalls: debug.rendererDrawCalls,
+        textures: debug.rendererTextures,
+      },
+      screenshot: SCREENSHOT_PATH,
+      secondaryViews,
+    }, null, 2));
   } finally {
     await browser.close();
     await server.close();

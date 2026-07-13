@@ -1,5 +1,4 @@
-import { PANTONE_INSPIRED } from "../../game/palette";
-import { InkOutline } from "../InkOutline";
+import { SharedToonMaterial } from "./buildings/BuildingKit";
 
 type SceneryPropsProps = {
   cluster?: "flags" | "clouds" | "lamps";
@@ -17,8 +16,7 @@ function Clouds() {
       {[0, 0.1, -0.1].map((x) => (
         <mesh key={x} position={[x, 0, 0]}>
           <sphereGeometry args={[0.075, 8, 6]} />
-          <meshStandardMaterial color={PANTONE_INSPIRED.cloud} roughness={0.95} />
-          <InkOutline thickness={0.01} />
+          <SharedToonMaterial material="road.marking" />
         </mesh>
       ))}
     </group>
@@ -30,12 +28,11 @@ function Flags() {
     <group position={[-0.26, 0.02, 0.18]} userData={{ sceneryMesh: true }}>
       <mesh>
         <boxGeometry args={[0.025, 0.34, 0.025]} />
-        <meshStandardMaterial color={PANTONE_INSPIRED.mochaDeep} />
+        <SharedToonMaterial material="wood.cedar" />
       </mesh>
       <mesh position={[0.08, 0.11, 0]}>
         <boxGeometry args={[0.16, 0.08, 0.012]} />
-        <meshStandardMaterial color={PANTONE_INSPIRED.peach} />
-        <InkOutline thickness={0.008} />
+        <SharedToonMaterial material="concrete.coral" />
       </mesh>
     </group>
   );
@@ -46,12 +43,11 @@ function Lamps() {
     <group position={[0.25, 0.03, -0.18]} userData={{ sceneryMesh: true }}>
       <mesh>
         <boxGeometry args={[0.025, 0.28, 0.025]} />
-        <meshStandardMaterial color={PANTONE_INSPIRED.mochaDeep} />
+        <SharedToonMaterial material="metal.warm" />
       </mesh>
       <mesh position={[0, 0.16, 0]}>
         <sphereGeometry args={[0.055, 8, 6]} />
-        <meshStandardMaterial color={PANTONE_INSPIRED.peachSoft} emissive="#402010" />
-        <InkOutline thickness={0.008} />
+        <SharedToonMaterial material="metal.energy" />
       </mesh>
     </group>
   );

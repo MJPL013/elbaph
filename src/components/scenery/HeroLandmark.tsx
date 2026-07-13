@@ -1,4 +1,5 @@
-﻿import type { LandmarkDefinition } from "../../game/landmarkData";
+import type { LandmarkDefinition } from "../../game/landmarkData";
+import type { QualityTier } from "../../hooks/useQualityTier";
 import {
   ChallengePodiumBuilding,
   PersonalStudioBuilding,
@@ -27,19 +28,30 @@ const DEFAULT_LABEL_OFFSET: [number, number, number] = [0, 0.76, -0.08];
 type HeroLandmarkProps = {
   landmark: LandmarkDefinition;
   label: string;
+  qualityTier: QualityTier;
 };
 
-export function HeroLandmark({ landmark, label }: HeroLandmarkProps) {
+export function HeroLandmark({ landmark, label, qualityTier }: HeroLandmarkProps) {
   return (
     <group userData={{ sceneryMesh: true, portfolioLandmark: true }}>
-      <BuildingForLandmark landmark={landmark} />
+      <BuildingForLandmark landmark={landmark} qualityTier={qualityTier} />
       <WorldBillboardLabel label={label} position={landmark.labelOffset ?? DEFAULT_LABEL_OFFSET} />
     </group>
   );
 }
 
-function BuildingForLandmark({ landmark }: { landmark: LandmarkDefinition }) {
-  const props = { color: landmark.color, decalTheme: landmark.decalTheme };
+function BuildingForLandmark({
+  landmark,
+  qualityTier,
+}: {
+  landmark: LandmarkDefinition;
+  qualityTier: QualityTier;
+}) {
+  const props = {
+    primaryMaterial: landmark.materialTheme,
+    decalTheme: landmark.decalTheme,
+    lowQuality: qualityTier === "low",
+  };
 
   if (landmark.buildingArchetype === "ev-charger") return <KazamBuilding {...props} />;
   if (landmark.buildingArchetype === "satellite-lab") return <SatelliteLabBuilding {...props} />;

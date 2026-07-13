@@ -23,6 +23,7 @@ export function Landmarks({ debugVisible, qualityTier, registerCollider }: Landm
           key={landmark.id}
           debugVisible={debugVisible}
           landmark={landmark}
+          qualityTier={qualityTier}
           registerCollider={registerCollider}
         />
       ))}

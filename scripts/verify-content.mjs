@@ -1,7 +1,8 @@
-﻿import { existsSync, mkdirSync, writeFileSync, readFileSync } from "node:fs";
+import { existsSync, mkdirSync, writeFileSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { chromium } from "playwright-core";
 import { createServer } from "vite";
+import { assertArtPipeline, REQUIRED_KAZAM_SLOTS } from "./verify-art-pipeline.mjs";
 
 const ARTIFACT_DIR = resolve(".agents", "artifacts");
 const SCREENSHOT_PATH = resolve(ARTIFACT_DIR, "content-check.png");
@@ -109,6 +110,7 @@ function assertStructuredContent() {
 
 async function main() {
   assertStructuredContent();
+  assertArtPipeline();
 
   const executablePath = findBrowserExecutable();
   if (!executablePath) throw new Error("No Chrome or Edge executable found.");
@@ -142,6 +144,14 @@ async function main() {
     if (debug.portfolioBuildingCount < REQUIRED_IDS.length) throw new Error("Missing portfolio 3D buildings.");
     if (debug.billboardLabelCount < REQUIRED_IDS.length) throw new Error("Missing billboard labels.");
     if (debug.decalSlotCount < REQUIRED_IDS.length) throw new Error("Missing decal slots.");
+    if (debug.materialLibraryCount !== 16) throw new Error("Material registry count is not 16.");
+    if (debug.duplicateElbaphMaterialCount !== 0) throw new Error("Duplicate Elbaph materials detected.");
+    if (debug.kazamHeroCount !== 1) throw new Error("Expected one Kazam hero building.");
+    if (debug.kazamDrawCalls > 16) throw new Error("Kazam exceeds 16 draw calls.");
+    if (debug.kazamTriangles > 7000) throw new Error("Kazam exceeds 7,000 triangles.");
+    for (const slot of REQUIRED_KAZAM_SLOTS) {
+      if (!debug.kazamMaterialSlots.includes(slot)) throw new Error("Runtime missing Kazam slot: " + slot);
+    }
 
     for (const archetype of REQUIRED_ARCHETYPES) {
       if (!debug.buildingArchetypes?.includes(archetype)) throw new Error(`Runtime missing archetype: ${archetype}.`);
