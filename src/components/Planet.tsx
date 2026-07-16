@@ -12,7 +12,7 @@ export function Planet({ debugVisible }: PlanetProps) {
     <group>
       <mesh receiveShadow>
         <sphereGeometry args={[PLANET_RADIUS, 64, 64]} />
-        <SharedToonMaterial material="concrete.warm" />
+        <SharedToonMaterial material="concrete.sage" />
       </mesh>
       <QuarterBands />
       {debugVisible ? (

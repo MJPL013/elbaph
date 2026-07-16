@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import { DebugControls } from "./components/DebugControls";
 import { InteractionOverlay } from "./components/InteractionOverlay";
@@ -7,15 +6,12 @@ import { PointerJoystick } from "./components/PointerJoystick";
 import { WebGLFallback } from "./components/WebGLFallback";
 import { WorldHud } from "./components/WorldHud";
 import { WorldScene } from "./components/WorldScene";
-import { preloadAvatarModel } from "./game/avatarAsset";
 import { useQualityTier } from "./hooks/useQualityTier";
+import { useAvatarStore } from "./store/useAvatarStore";
 
 export default function App() {
   const qualityTier = useQualityTier();
-
-  useEffect(() => {
-    preloadAvatarModel();
-  }, []);
+  const avatarReady = useAvatarStore((state) => state.status === "ready");
 
   if (!supportsWebGL()) return <WebGLFallback />;
 
@@ -31,7 +27,7 @@ export default function App() {
       </Canvas>
       <DebugControls />
       <WorldHud qualityTier={qualityTier} />
-      <PointerJoystick />
+      {avatarReady ? <PointerJoystick /> : null}
       <InteractionOverlay />
       <LoadingOverlay />
     </>
@@ -40,7 +36,6 @@ export default function App() {
 
 function supportsWebGL() {
   if (typeof document === "undefined") return true;
-
   const canvas = document.createElement("canvas");
   return Boolean(canvas.getContext("webgl") || canvas.getContext("experimental-webgl"));
 }

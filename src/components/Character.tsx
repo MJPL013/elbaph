@@ -1,18 +1,20 @@
-import { Suspense, forwardRef, lazy, useCallback, useRef, useState } from "react";
+import { Suspense, forwardRef, useCallback, useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import type { Group } from "three";
 import { Vector2 } from "three";
+import { clearAvatarModelCache } from "../components/visuals/avatar/avatarAsset";
+import { getCharacterTilt, getFrameSmoothing } from "../game/characterAnimation";
 import {
   CHARACTER_FIXED_POSITION,
   CHARACTER_HEIGHT,
   CHARACTER_SURFACE_LIFT,
   CHARACTER_TILT_SMOOTHING,
 } from "../game/constants";
-import { getCharacterTilt, getFrameSmoothing } from "../game/characterAnimation";
 import { directionToFacingYaw, normalizeYawDelta } from "../game/facing";
+import { useAvatarStore } from "../store/useAvatarStore";
+import Avatar from "./Avatar";
+import { AvatarErrorBoundary } from "./AvatarErrorBoundary";
 import { AvatarPlaceholder } from "./AvatarPlaceholder";
-
-const Avatar = lazy(() => import("./Avatar"));
 
 type CharacterProps = {
   inputDirectionRef: React.RefObject<Vector2>;
@@ -28,12 +30,28 @@ export const Character = forwardRef<Group, CharacterProps>(function Character(
   const visualRef = useRef<Group>(null);
   const facingYaw = useRef(0);
   const modelScale = useRef(1);
+  const automaticRetryUsed = useRef(false);
   const [avatarLoaded, setAvatarLoaded] = useState(false);
+  const retryToken = useAvatarStore((state) => state.retryToken);
+  const markReady = useAvatarStore((state) => state.markReady);
+  const markError = useAvatarStore((state) => state.markError);
+  const beginRetry = useAvatarStore((state) => state.beginRetry);
 
   const handleAvatarReady = useCallback((scale: number) => {
     modelScale.current = scale;
     setAvatarLoaded(true);
-  }, []);
+    markReady();
+  }, [markReady]);
+
+  const handleAvatarError = useCallback(() => {
+    markError();
+    if (automaticRetryUsed.current) return;
+    automaticRetryUsed.current = true;
+    window.setTimeout(() => {
+      clearAvatarModelCache();
+      beginRetry();
+    }, 450);
+  }, [beginRetry, markError]);
 
   useFrame((_, delta) => {
     const direction = inputDirectionRef.current;
@@ -43,10 +61,7 @@ export const Character = forwardRef<Group, CharacterProps>(function Character(
     const tiltTurn = getFrameSmoothing(CHARACTER_TILT_SMOOTHING, delta);
     const running = direction.lengthSq() > 0;
 
-    if (running) {
-      facingYawRef.current = directionToFacingYaw(direction);
-    }
-
+    if (running) facingYawRef.current = directionToFacingYaw(direction);
     const yawDelta = normalizeYawDelta(facingYawRef.current - facingYaw.current);
     facingYaw.current += yawDelta * turn;
 
@@ -71,20 +86,23 @@ export const Character = forwardRef<Group, CharacterProps>(function Character(
 
   function setRef(group: Group | null) {
     rootRef.current = group;
-
-    if (typeof ref === "function") {
-      ref(group);
-    } else if (ref) {
-      ref.current = group;
-    }
+    if (typeof ref === "function") ref(group);
+    else if (ref) ref.current = group;
   }
 
   return (
     <group ref={setRef} position={CHARACTER_FIXED_POSITION}>
       <group ref={visualRef}>
-        <Suspense fallback={<AvatarPlaceholder />}>
-          <Avatar onReady={handleAvatarReady} />
-        </Suspense>
+        <AvatarErrorBoundary
+          key={retryToken}
+          resetKey={retryToken}
+          fallback={<AvatarPlaceholder />}
+          onError={handleAvatarError}
+        >
+          <Suspense fallback={<AvatarPlaceholder />}>
+            <Avatar onReady={handleAvatarReady} />
+          </Suspense>
+        </AvatarErrorBoundary>
       </group>
     </group>
   );

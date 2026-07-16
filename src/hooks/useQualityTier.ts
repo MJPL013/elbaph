@@ -1,4 +1,6 @@
-export type QualityTier = "high" | "medium" | "low";
+import type { VisualQuality } from "../types/worldContracts";
+
+export type QualityTier = VisualQuality;
 
 export function useQualityTier(): QualityTier {
   if (typeof window === "undefined") return "high";

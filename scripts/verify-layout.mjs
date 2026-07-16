@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 
-const source = readFileSync("src/game/landmarkData.ts", "utf8");
+const source = readFileSync("src/world/landmarkData.ts", "utf8");
 const itemPattern = /id:\s*"([^"]+)"[\s\S]*?latitude:\s*(-?\d+)[\s\S]*?longitude:\s*(-?\d+)/g;
 const points = [...source.matchAll(itemPattern)].map((match) => ({
   id: match[1],

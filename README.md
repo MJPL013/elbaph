@@ -1,4 +1,6 @@
-﻿# Elbaph
+# Elbaph
+
+Current tracked release: **v0.01.03** (package SemVer 0.1.3). See [docs/release-tracker.md](docs/release-tracker.md) for the detailed shipped-change record.
 
 Elbaph is an interactive 3D portfolio planet for Manoj Pal. Instead of presenting a static resume page, it turns portfolio content into a small explorable world where visitors move around a spherical city, discover districts, and open structured project panels by interacting with landmarks.
 
@@ -38,15 +40,17 @@ The current version focuses on the professional portfolio layer: internships, AI
 The app is structured as a small game engine rather than a conventional landing page.
 
 - `src/App.tsx` mounts the full-screen WebGL canvas and HTML overlays.
-- `src/components/WorldScene.tsx` composes lights, planet, character, camera, debug probes, and post-processing.
-- `src/components/TreadmillPlanet.tsx` owns the traversal loop. The character stays fixed while the planet rotates underneath it.
+- `src/components/WorldScene.tsx` composes the game controller, world entities, replaceable visual package, avatar, camera, diagnostics, and post-processing.
+- `src/components/TreadmillPlanet.tsx` owns only traversal and collision decisions. It receives entities and visuals through a child contract, so rendering can change independently.
 - `src/game/treadmillMath.ts` contains the quaternion math for planet rotation.
-- `src/components/LandmarkBox.tsx` places each clickable landmark on the sphere and registers its collider.
+- `src/components/LandmarkBox.tsx` anchors each landmark while separate entity components render its visual and register its collider.
 - `src/components/scenery/HeroLandmark.tsx` maps portfolio landmarks to 3D building archetypes.
 - `src/components/scenery/buildings/` contains the reusable toon 3D building kit and district-specific landmark buildings.
 - `src/components/scenery/WorldBillboardLabel.tsx` keeps landmark labels facing the camera so text is readable and not mirrored.
 - `src/content/` stores structured portfolio content separate from world placement.
-- `src/game/landmarkData.ts` stores placement, quarter, building archetype, footprint, and decal-slot metadata.
+- `src/world/landmarkData.ts` stores placement, quarter, building archetype, footprint, and decal-slot metadata.
+- `src/components/visuals/` contains the removable fantasy sky-world package: biome patches, paths, instanced props, atmosphere, and lighting.
+- `docs/art/fantasy-sky-world-prompts.md` specifies future generated texture assets without claiming they are loaded at runtime.
 - `src/store/` stores global game state with Zustand.
 - `scripts/verify-*.mjs` contains browser-based regression checks for rendering, movement, collision, camera behavior, content, and layout.
 
@@ -112,11 +116,14 @@ npm run build
 Run individual checks:
 
 ```bash
+npm run verify:architecture
+npm run verify:avatar
 npm run verify:layout
 npm run verify:render
 npm run verify:visual
 npm run verify:content
 npm run verify:movement
+npm run verify:focus-input
 npm run verify:collision
 npm run verify:camera
 npm run verify:relative-movement

@@ -93,7 +93,8 @@ async function main() {
 
     await page.goto(url, { waitUntil: "domcontentloaded", timeout: 30_000 });
     await page.waitForFunction(() => Boolean(window.__SELF_WORLD_DEBUG__));
-    await page.waitForTimeout(900);
+    await page.waitForFunction(() => window.__SELF_WORLD_DEBUG__?.avatarLoaded === true, null, { timeout: 10_000 });
+    await page.waitForTimeout(250);
 
     const screenshot = await page.screenshot({ fullPage: false });
     writeFileSync(SCREENSHOT_PATH, screenshot);
@@ -112,9 +113,12 @@ async function main() {
     if (debug.kazamDrawCalls > 16) throw new Error("Kazam draw-call budget exceeded: " + debug.kazamDrawCalls);
     if (debug.kazamTriangles > 7000) throw new Error("Kazam triangle budget exceeded: " + debug.kazamTriangles);
     if (debug.rendererDrawCalls <= 0 || debug.rendererTriangles <= 0) throw new Error("Renderer statistics are unavailable.");
-
-    await page.waitForFunction(() => window.__SELF_WORLD_DEBUG__?.avatarLoaded === true, null, { timeout: 10_000 });
-
+    if (debug.visualPackage !== "fantasy-sky-world") throw new Error("Fantasy visual package is missing.");
+    if (debug.fantasyPathCount !== 4) throw new Error("Expected four fantasy district paths.");
+    if (debug.ambientInstanceCount < 50) throw new Error("Fantasy prop density is too low: " + debug.ambientInstanceCount);
+    if (debug.orbitalCloudCount < 8 || debug.wispCount < 50) throw new Error("Atmosphere density is incomplete.");
+    if (debug.rendererDrawCalls > 610) throw new Error("Renderer draw-call budget exceeded: " + debug.rendererDrawCalls);
+    if (debug.rendererTriangles > 95000) throw new Error("Renderer triangle budget exceeded: " + debug.rendererTriangles);
     const outlinePixels = countOutlinePixels(screenshot);
     if (outlinePixels < 80) {
       throw new Error(`Outline pixel count too low: ${outlinePixels}; targets=${debug.outlineTargetCount}`);

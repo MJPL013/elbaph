@@ -1,6 +1,6 @@
 import type { PortfolioContentId } from "../content/portfolioContent";
 import type { ElbaphMaterialId } from "../art/materials/materialTypes";
-import { PANTONE_INSPIRED } from "./palette";
+import { PANTONE_INSPIRED } from "../game/palette";
 
 export type PortfolioQuarter = "experience" | "ai-projects" | "creative" | "contact";
 

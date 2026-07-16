@@ -2,11 +2,13 @@ import { useEffect, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import type { Group } from "three";
 import { Vector2, Vector3 } from "three";
-import { LANDMARKS } from "../game/landmarkData";
-import type { PortfolioQuarter } from "../game/landmarkData";
+import { LANDMARKS } from "../world/landmarkData";
+import type { PortfolioQuarter } from "../world/landmarkData";
 import { useGameStore } from "../store/useGameStore";
 import { collectSceneDiagnostics } from "../game/sceneDiagnostics";
 import { useElbaphMaterialLibrary } from "../art/materials/ElbaphMaterialProvider";
+import { useAvatarStore } from "../store/useAvatarStore";
+import { collectVisualDiagnostics } from "./visuals/collectVisualDiagnostics";
 
 const LANDMARK_QUARTERS = new Map(LANDMARKS.map((landmark) => [landmark.id, landmark.quarter]));
 
@@ -38,8 +40,10 @@ export function DebugProbe({
   const lastQuarter = useRef<PortfolioQuarter | null>(null);
   const sceneDiagnosticsRef = useRef<ReturnType<typeof collectSceneDiagnostics> | null>(null);
   const rendererStatsRef = useRef({ drawCalls: 0, triangles: 0, textures: 0 });
-  const { camera, size, gl } = useThree();
+  const visualDiagnosticsRef = useRef<ReturnType<typeof collectVisualDiagnostics> | null>(null);
+  const { camera, size, gl, scene } = useThree();
   const materialLibrary = useElbaphMaterialLibrary();
+  const avatarStatus = useAvatarStore((state) => state.status);
   const isInteracting = useGameStore((state) => state.isInteracting);
   const activeLandmarkId = useGameStore((state) => state.activeLandmarkId);
   const activeTarget = useGameStore((state) => state.activeTarget);
@@ -110,6 +114,9 @@ export function DebugProbe({
     }
 
     const sceneDiagnostics = sceneDiagnosticsRef.current ?? collectSceneDiagnostics(planet);
+    const visualDiagnostics =
+      visualDiagnosticsRef.current ?? collectVisualDiagnostics(planet, scene);
+    visualDiagnosticsRef.current = visualDiagnostics;
     sceneDiagnosticsRef.current = sceneDiagnostics;
 
     rendererStatsRef.current = {
@@ -129,6 +136,7 @@ export function DebugProbe({
       characterPitch: Number(character.userData.pitch ?? 0),
       characterRoll: Number(character.userData.roll ?? 0),
       avatarLoaded: Boolean(character.userData.avatarLoaded),
+      avatarStatus,
       avatarPlaceholderVisible,
       planetQuaternion: planet.quaternion.toArray(),
       inputDirection: inputDirectionRef.current.toArray(),
@@ -154,6 +162,7 @@ export function DebugProbe({
       rendererTriangles: rendererStatsRef.current.triangles,
       rendererTextures: rendererStatsRef.current.textures,
       materialLibraryCount: materialLibrary.size,
+      ...visualDiagnostics,
       ...sceneDiagnostics,
     };
   });

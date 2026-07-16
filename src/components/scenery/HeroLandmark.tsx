@@ -1,4 +1,4 @@
-import type { LandmarkDefinition } from "../../game/landmarkData";
+import type { LandmarkDefinition } from "../../world/landmarkData";
 import type { QualityTier } from "../../hooks/useQualityTier";
 import {
   ChallengePodiumBuilding,

@@ -1,4 +1,5 @@
-import type { PortfolioQuarter } from "../game/landmarkData";
+import type { AvatarLoadStatus } from "./worldContracts";
+import type { PortfolioQuarter } from "../world/landmarkData";
 
 export type SelfWorldDebugState = {
   characterWorldPosition: [number, number, number];
@@ -22,6 +23,7 @@ export type SelfWorldDebugState = {
   characterPitch: number;
   characterRoll: number;
   avatarLoaded: boolean;
+  avatarStatus: AvatarLoadStatus;
   avatarPlaceholderVisible: boolean;
   outlineTargetCount: number;
   debugVisible: boolean;
@@ -31,6 +33,12 @@ export type SelfWorldDebugState = {
   decalSlotCount: number;
   quarterBandCount: number;
   buildingArchetypes: string[];
+  fantasyPathCount: number;
+  ambientInstanceCount: number;
+  orbitalCloudCount: number;
+  atmosphereLayerCount: number;
+  wispCount: number;
+  visualPackage: string | null;
   rendererDrawCalls: number;
   rendererTriangles: number;
   rendererTextures: number;

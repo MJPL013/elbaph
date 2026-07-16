@@ -1,16 +1,19 @@
-import type { Mesh } from "three";
-import { FILLER_BUILDINGS, LANDMARKS } from "../game/landmarkData";
-import type { QualityTier } from "../hooks/useQualityTier";
+import { FILLER_BUILDINGS, LANDMARKS } from "../world/landmarkData";
+import type { ColliderRegistry, VisualQuality } from "../types/worldContracts";
 import { FillerBuilding } from "./FillerBuilding";
 import { LandmarkBox } from "./LandmarkBox";
 
 type LandmarksProps = {
   debugVisible: boolean;
-  qualityTier: QualityTier;
-  registerCollider: (id: string, collider: Mesh | null) => void;
+  qualityTier: VisualQuality;
+  registerCollider: ColliderRegistry["register"];
 };
 
-export function Landmarks({ debugVisible, qualityTier, registerCollider }: LandmarksProps) {
+export function Landmarks({
+  debugVisible,
+  qualityTier,
+  registerCollider,
+}: LandmarksProps) {
   const fillerBuildings = FILLER_BUILDINGS.filter((building, index) => {
     if (qualityTier !== "low") return true;
     return building.collidable || index % 2 === 0;

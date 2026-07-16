@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { PortfolioQuarter } from "../game/landmarkData";
+import type { PortfolioQuarter } from "../world/landmarkData";
 
 type GameState = {
   isInteracting: boolean;

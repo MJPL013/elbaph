@@ -16,6 +16,11 @@ export function PointerJoystick() {
   const dragRef = useRef({ pointerId: -1, originX: 0, originY: 0 });
 
   useEffect(() => {
+    function clearPointer() {
+      dragRef.current.pointerId = -1;
+      usePointerInputStore.getState().endDrag();
+    }
+
     function onPointerDown(event: PointerEvent) {
       if (!event.isPrimary || isIgnoredTarget(event.target)) return;
       if (useGameStore.getState().isInteracting) return;
@@ -50,21 +55,30 @@ export function PointerJoystick() {
     }
 
     function endPointer(event: PointerEvent) {
-      if (dragRef.current.pointerId !== event.pointerId) return;
-      dragRef.current.pointerId = -1;
-      usePointerInputStore.getState().endDrag();
+      if (dragRef.current.pointerId === event.pointerId) clearPointer();
+    }
+
+    function onVisibilityChange() {
+      if (document.hidden) clearPointer();
     }
 
     window.addEventListener("pointerdown", onPointerDown);
     window.addEventListener("pointermove", onPointerMove, { passive: false });
     window.addEventListener("pointerup", endPointer);
     window.addEventListener("pointercancel", endPointer);
+    window.addEventListener("blur", clearPointer);
+    window.addEventListener("pagehide", clearPointer);
+    document.addEventListener("visibilitychange", onVisibilityChange);
 
     return () => {
       window.removeEventListener("pointerdown", onPointerDown);
       window.removeEventListener("pointermove", onPointerMove);
       window.removeEventListener("pointerup", endPointer);
       window.removeEventListener("pointercancel", endPointer);
+      window.removeEventListener("blur", clearPointer);
+      window.removeEventListener("pagehide", clearPointer);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+      clearPointer();
     };
   }, []);
 

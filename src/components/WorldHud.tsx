@@ -1,4 +1,4 @@
-import { QUARTER_COLORS, QUARTER_LABELS } from "../game/landmarkData";
+import { QUARTER_COLORS, QUARTER_LABELS } from "../world/landmarkData";
 import type { QualityTier } from "../hooks/useQualityTier";
 import { useGameStore } from "../store/useGameStore";
 

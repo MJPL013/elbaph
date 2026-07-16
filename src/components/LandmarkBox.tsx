@@ -1,16 +1,15 @@
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import type { ThreeEvent } from "@react-three/fiber";
-import type { Group, Mesh } from "three";
+import type { Group } from "three";
 import { Vector3 } from "three";
 import { getPortfolioContent } from "../content/portfolioContent";
 import { PLANET_RADIUS } from "../game/constants";
-import type { LandmarkDefinition } from "../game/landmarkData";
+import type { LandmarkDefinition } from "../world/landmarkData";
 import { sphericalSurfacePoint, surfaceQuaternion } from "../game/spherical";
 import { useGameStore } from "../store/useGameStore";
-import { DistrictPad } from "./scenery/DistrictPad";
-import { HeroLandmark } from "./scenery/HeroLandmark";
-import { SceneryProps } from "./scenery/SceneryProps";
-import type { QualityTier } from "../hooks/useQualityTier";
+import type { ColliderRegistry, VisualQuality } from "../types/worldContracts";
+import { EntityCollider } from "./entities/EntityCollider";
+import { LandmarkVisual } from "./entities/LandmarkVisual";
 
 const DEFAULT_BUILDING_HEIGHT = 0.78;
 const DEFAULT_FOOTPRINT: [number, number] = [0.58, 0.58];
@@ -19,8 +18,8 @@ const CLICK_TARGET_HEIGHT = 1.5;
 type LandmarkBoxProps = {
   debugVisible: boolean;
   landmark: LandmarkDefinition;
-  qualityTier: QualityTier;
-  registerCollider: (id: string, collider: Mesh | null) => void;
+  qualityTier: VisualQuality;
+  registerCollider: ColliderRegistry["register"];
 };
 
 export function LandmarkBox({
@@ -29,7 +28,6 @@ export function LandmarkBox({
   qualityTier,
   registerCollider,
 }: LandmarkBoxProps) {
-  const colliderRef = useRef<Mesh>(null);
   const targetRef = useRef<Group>(null);
   const openInteraction = useGameStore((state) => state.openInteraction);
   const content = getPortfolioContent(landmark.id);
@@ -40,12 +38,11 @@ export function LandmarkBox({
   const surfacePoint = normal.clone().multiplyScalar(PLANET_RADIUS);
   const position = surfacePoint.add(normal.clone().multiplyScalar(height / 2));
   const quaternion = surfaceQuaternion(normal);
-  const colliderSize = new Vector3(footprint[0] * 1.22, height * 1.12, footprint[1] * 1.22);
-
-  useEffect(() => {
-    registerCollider(landmark.id, colliderRef.current);
-    return () => registerCollider(landmark.id, null);
-  }, [landmark.id, registerCollider]);
+  const colliderSize: [number, number, number] = [
+    footprint[0] * 1.22,
+    height * 1.12,
+    footprint[1] * 1.22,
+  ];
 
   function handleClick(event: ThreeEvent<MouseEvent>) {
     event.stopPropagation();
@@ -57,18 +54,20 @@ export function LandmarkBox({
   return (
     <group position={position} quaternion={quaternion} onClick={handleClick}>
       <group ref={targetRef}>
-        <DistrictPad radius={landmark.padRadius} y={-height / 2 - 0.03} />
-        <HeroLandmark landmark={landmark} label={label} qualityTier={qualityTier} />
-        <SceneryProps cluster={landmark.propCluster} />
+        <LandmarkVisual
+          landmark={landmark}
+          label={label}
+          height={height}
+          quality={qualityTier}
+        />
       </group>
-      <mesh
-        ref={colliderRef}
+      <EntityCollider
+        id={landmark.id}
+        size={colliderSize}
         visible={debugVisible}
-        userData={{ colliderId: landmark.id, landmarkId: landmark.id }}
-      >
-        <boxGeometry args={[colliderSize.x, colliderSize.y, colliderSize.z]} />
-        <meshBasicMaterial color="#ff4040" wireframe transparent opacity={0.9} />
-      </mesh>
+        register={registerCollider}
+        landmarkId={landmark.id}
+      />
       <mesh
         position={[0, Math.max(height * 0.2, 0.18), 0]}
         userData={{ landmarkId: landmark.id, interactionTarget: true }}

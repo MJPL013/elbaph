@@ -1,11 +1,9 @@
-import { useEffect, useRef } from "react";
-import type { Mesh } from "three";
 import { PLANET_RADIUS } from "../game/constants";
-import type { FillerBuildingDefinition } from "../game/landmarkData";
+import type { FillerBuildingDefinition } from "../world/landmarkData";
 import { sphericalSurfacePoint, surfaceQuaternion } from "../game/spherical";
-import { DistrictPad } from "./scenery/DistrictPad";
-import { SceneryProps } from "./scenery/SceneryProps";
-import { SkyBuilding } from "./scenery/SkyBuilding";
+import type { ColliderRegistry } from "../types/worldContracts";
+import { EntityCollider } from "./entities/EntityCollider";
+import { FillerVisual } from "./entities/FillerVisual";
 
 const WIDTH = 0.24;
 const MIN_COLLIDER_HEIGHT = 0.9;
@@ -13,7 +11,7 @@ const MIN_COLLIDER_HEIGHT = 0.9;
 type FillerBuildingProps = {
   debugVisible: boolean;
   building: FillerBuildingDefinition;
-  registerCollider: (id: string, collider: Mesh | null) => void;
+  registerCollider: ColliderRegistry["register"];
 };
 
 export function FillerBuilding({
@@ -21,36 +19,26 @@ export function FillerBuilding({
   building,
   registerCollider,
 }: FillerBuildingProps) {
-  const colliderRef = useRef<Mesh>(null);
   const normal = sphericalSurfacePoint(1, building.latitude, building.longitude);
   const surfacePoint = normal.clone().multiplyScalar(PLANET_RADIUS);
   const position = surfacePoint.add(normal.clone().multiplyScalar(building.height / 2));
   const quaternion = surfaceQuaternion(normal);
-
-  useEffect(() => {
-    if (!building.collidable) return;
-    registerCollider(building.id, colliderRef.current);
-    return () => registerCollider(building.id, null);
-  }, [building.collidable, building.id, registerCollider]);
+  const colliderSize: [number, number, number] = [
+    WIDTH * 1.35,
+    Math.max(building.height * 1.2, MIN_COLLIDER_HEIGHT),
+    WIDTH * 1.35,
+  ];
 
   return (
     <group position={position} quaternion={quaternion}>
-      <DistrictPad radius={0.36} y={-building.height / 2 - 0.03} />
-      <SkyBuilding
-        material={building.materialTheme}
-        height={building.height}
-        variant={building.variant}
-      />
-      <SceneryProps cluster={building.propCluster} />
+      <FillerVisual building={building} />
       {building.collidable ? (
-        <mesh
-          ref={colliderRef}
+        <EntityCollider
+          id={building.id}
+          size={colliderSize}
           visible={debugVisible}
-          userData={{ colliderId: building.id }}
-        >
-          <boxGeometry args={[WIDTH * 1.35, Math.max(building.height * 1.2, MIN_COLLIDER_HEIGHT), WIDTH * 1.35]} />
-          <meshBasicMaterial color="#ff4040" wireframe transparent opacity={0.9} />
-        </mesh>
+          register={registerCollider}
+        />
       ) : null}
     </group>
   );

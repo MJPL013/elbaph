@@ -11,10 +11,15 @@ export async function captureSecondaryViews(browser, baseUrl, artifactDir) {
       waitUntil: "domcontentloaded",
       timeout: 30_000,
     });
-    await lowPage.waitForFunction(() => Boolean(window.__SELF_WORLD_DEBUG__));
-    await lowPage.waitForTimeout(700);
+    await lowPage.waitForFunction(
+      () => window.__SELF_WORLD_DEBUG__?.avatarLoaded === true,
+    );
+    await lowPage.waitForTimeout(250);
     const lowDebug = await lowPage.evaluate(() => window.__SELF_WORLD_DEBUG__);
     if (lowDebug.kazamHeroCount !== 1) throw new Error("Low quality lost the Kazam hero.");
+    if (lowDebug.ambientInstanceCount >= 52) {
+      throw new Error("Low quality did not reduce fantasy prop density.");
+    }
     writeFileSync(lowPath, await lowPage.screenshot({ fullPage: false }));
   } finally {
     await lowPage.close();
@@ -29,7 +34,9 @@ export async function captureSecondaryViews(browser, baseUrl, artifactDir) {
       waitUntil: "domcontentloaded",
       timeout: 30_000,
     });
-    await mobilePage.waitForFunction(() => Boolean(window.__SELF_WORLD_DEBUG__));
+    await mobilePage.waitForFunction(
+      () => window.__SELF_WORLD_DEBUG__?.avatarLoaded === true,
+    );
     await mobilePage.mouse.move(92, 700);
     await mobilePage.mouse.down();
     await mobilePage.mouse.move(135, 660, { steps: 5 });

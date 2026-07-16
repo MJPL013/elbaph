@@ -1,5 +1,5 @@
 import { RoundedBox } from "@react-three/drei";
-import type { DecalTheme } from "../../../game/landmarkData";
+import type { DecalTheme } from "../../../world/landmarkData";
 import { useElbaphMaterial } from "../../../art/materials/ElbaphMaterialProvider";
 import type { ElbaphMaterialId } from "../../../art/materials/materialTypes";
 import { InkOutline } from "../../InkOutline";

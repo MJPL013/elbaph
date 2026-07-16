@@ -66,8 +66,10 @@ function readContentSource() {
 
 function assertStructuredContent() {
   const contentSource = readContentSource();
-  const landmarkSource = readFileSync("src/game/landmarkData.ts", "utf8");
+  const landmarkSource = readFileSync("src/world/landmarkData.ts", "utf8");
   const appSource = readFileSync("src/App.tsx", "utf8");
+  const mainSource = readFileSync("src/main.tsx", "utf8");
+  const avatarAssetSource = readFileSync("src/components/visuals/avatar/avatarAsset.ts", "utf8");
   const characterSource = readFileSync("src/components/Character.tsx", "utf8");
   const avatarSource = readFileSync("src/components/Avatar.tsx", "utf8");
   const overlaySource = readFileSync("src/components/InteractionOverlay.tsx", "utf8");
@@ -100,8 +102,11 @@ function assertStructuredContent() {
   if (!characterSource.includes("fallback={<AvatarPlaceholder />}")) {
     throw new Error("Avatar placeholder fallback is not wired in Character.");
   }
-  if (!appSource.includes("preloadAvatarModel") || !avatarSource.includes("AVATAR_MODEL_URL")) {
-    throw new Error("Shared avatar preload/model URL wiring is missing.");
+  if (!mainSource.includes("preloadAvatarModel") || !avatarAssetSource.includes("AVATAR_MODEL_URL")) {
+    throw new Error("Critical avatar preload/model URL wiring is missing.");
+  }
+  if (characterSource.includes("lazy(()") || !avatarSource.includes("useGLTF")) {
+    throw new Error("Avatar component must load synchronously around the cached GLB.");
   }
   if (/MANOJ_PAL\.pdf|\.pdf/i.test(appSource + overlaySource)) {
     throw new Error("The public UI must not open or expose the resume PDF.");

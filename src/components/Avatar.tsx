@@ -2,7 +2,7 @@ import { useLayoutEffect, useMemo, useRef } from "react";
 import { useGLTF } from "@react-three/drei";
 import type { Group, Object3D } from "three";
 import { Box3, Vector3 } from "three";
-import { AVATAR_MODEL_URL, preloadAvatarModel } from "../game/avatarAsset";
+import { AVATAR_MODEL_URL } from "../components/visuals/avatar/avatarAsset";
 import { CHARACTER_HEIGHT, CHARACTER_MODEL_YAW_OFFSET } from "../game/constants";
 
 const MODEL_BOX = new Box3();
@@ -59,5 +59,3 @@ export default function Avatar({ onReady }: AvatarProps) {
     </group>
   );
 }
-
-preloadAvatarModel();
